@@ -1,2 +1,0 @@
-# giziclusterPA
-backuppa
