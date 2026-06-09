@@ -3,43 +3,38 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Services\FoodDataService; // ✅ WAJIB
+use App\Services\FoodDataService;
+use App\Models\FoodImage;
 
 class RekomendasiController extends Controller
 {
     public function rekomendasi(Request $request, FoodDataService $service)
     {
-        $tujuan = $request->tujuan;
-        $userKategori = $request->kategori;
+        try {
 
-        // validasi kategori
-        $validKategori = ['anak', 'remaja', 'ibu'];
-        if (!in_array($userKategori, $validKategori)) {
-            return response()->json([
-                'error' => 'Kategori tidak valid'
-            ], 400);
-        }
+            $tujuan = $request->tujuan;
+            $userKategori = $request->kategori;
 
-        // validasi stunting
-        if ($tujuan === 'stunting' && $userKategori !== 'anak') {
-            return response()->json([
-                'error' => 'Menu stunting hanya untuk anak-anak'
-            ], 400);
-        }
+            if ($tujuan === 'mbg') {
 
-        // MBG
-        if ($tujuan === 'mbg') {
+                return response()->json([
+                    'type' => 'mbg',
+                    'data' => $service->generateMBGMenu($userKategori)
+                ]);
+            }
+
             return response()->json([
-                'type' => 'mbg',
-                'kategori' => $userKategori,
-                'data' => $service->generateMBGMenu($userKategori) // ✅ kirim userKategori
+                'type' => 'stunting',
+                'data' => $service->generateStuntingMenu()
             ]);
-        }
 
-        // STUNTING
-        return response()->json([
-            'type' => 'stunting',
-            'data' => $service->generateStuntingMenu()
-        ]);
+        } catch (\Throwable $e) {
+
+            return response()->json([
+                'error' => $e->getMessage(),
+                'line' => $e->getLine(),
+                'file' => $e->getFile(),
+            ], 500);
+        }
     }
 }

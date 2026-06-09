@@ -1,6 +1,8 @@
 <?php
 namespace App\Services;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\DB;
+use App\Models\FoodImage;
 
 class FoodDataService
 {
@@ -146,306 +148,260 @@ class FoodDataService
         return [];
     }
 
-public function generateMBGMenu($userKategori)
-{
-    $foods = collect($this->getClusteredFoods());
+    public function generateMBGMenu($userKategori)
+    {
+        $foods = collect($this->getClusteredFoods());
 
-    // filter makanan aneh
-    $foods = $foods->filter(function ($item) {
+        // =========================
+        // FILTER DATA
+        // =========================
+        $foods = $foods->filter(function ($item) {
 
-        $nama = strtolower($item['nama']);
+            $nama = strtolower($item['nama']);
 
-        if (
-            str_contains($nama, 'mentah') ||
-            str_contains($nama, 'minyak') ||
-            str_contains($nama, 'bumbu')
-        ) {
-            return false;
-        }
+            if (
+                str_contains($nama, 'mentah') ||
+                str_contains($nama, 'minyak') ||
+                str_contains($nama, 'bumbu')
+            ) {
+                return false;
+            }
 
-        return true;
-    });
+            return true;
+        });
 
-    // =========================
-    // 🎯 KEBUTUHAN GIZI
-    // =========================
-    $kebutuhan = [
-        'anak' => [
-            'kalori' => 1675,
-            'protein' => 39,
-            'karbohidrat' => 255,
-            'lemak' => 57,
-            'serat' => 24,
-            'zat_besi' => 9,
-            'vit_c' => 47,
-            'kalsium' => 1100
-        ],
+        // =========================
+        // KEBUTUHAN GIZI
+        // =========================
+        $kebutuhan = [
 
-        'remaja' => [
-            'kalori' => 2300,
-            'protein' => 69,
-            'karbohidrat' => 337,
-            'lemak' => 76,
-            'serat' => 32,
-            'zat_besi' => 13,
-            'vit_c' => 76,
-            'kalsium' => 1200
-        ],
+            'anak' => [
+                'kalori' => 1675,
+                'protein' => 39,
+                'karbohidrat' => 255,
+                'lemak' => 57,
+                'serat' => 24,
+            ],
 
-        'ibu' => [
-            'kalori' => 2513,
-            'protein' => 78,
-            'karbohidrat' => 393,
-            'lemak' => 62,
-            'serat' => 36,
-            'zat_besi' => 31,
-            'vit_c' => 103,
-            'kalsium' => 2900
-        ]
-    ];
+            'remaja' => [
+                'kalori' => 2300,
+                'protein' => 69,
+                'karbohidrat' => 337,
+                'lemak' => 76,
+                'serat' => 32,
+            ],
 
-    $target = $kebutuhan[$userKategori];
-// =========================
-// 🍱 PAKET MENU FIX
-// =========================
-    $paketMenu = [
-
-        [
-            'nama' => 'Paket Menu 1',
-            'gambar' => 'images/paket/paket1.png',
-            'menu' => [
-                'pokok' => 'Nasi Putih',
-                'hewani' => 'Daging Ayam Goreng',
-                'sayur' => 'Sayur Bayam',
-                'nabati' => 'Tempe Goreng',
-                'buah' => 'Pisang Ambon',
-            ]
-        ],
-
-        [
-            'nama' => 'Paket Menu 2',
-            'gambar' => 'images/paket/paket2.png',
-            'menu' => [
-                'pokok' => 'Nasi Uduk',
-                'hewani' => 'Ikan Goreng',
-                'sayur' => 'Sayur Kangkung',
-                'nabati' => 'Tahu Goreng',
-                'buah' => 'Jeruk Manis',
-            ]
-        ],
-
-        [
-            'nama' => 'Paket Menu 3',
-            'gambar' => 'images/paket/paket3.png',
-            'menu' => [
-                'pokok' => 'Nasi Tim Ayam',
-                'hewani' => 'Telur Dadar',
-                'sayur' => 'Sayur Sop',
-                'nabati' => 'Tempe Bacem',
-                'buah' => 'Pisang Kepok',
-            ]
-        ],
-
-        [
-            'nama' => 'Paket Menu 4',
-            'gambar' => 'images/paket/paket4.png',
-            'menu' => [
-                'pokok' => 'Nasi Liwet',
-                'hewani' => 'Ikan Bandeng',
-                'sayur' => 'Sayur Sop',
-                'nabati' => 'Tahu Goreng',
-                'buah' => 'Jeruk Bali',
-            ]
-        ],
-
-        [
-            'nama' => 'Paket Menu 5',
-            'gambar' => 'images/paket/paket5.png',
-            'menu' => [
-                'pokok' => 'Nasi Uduk',
-                'hewani' => 'Daging Ayam Goreng',
-                'sayur' => 'Sayur Kangkung',
-                'nabati' => 'Tempe Goreng',
-                'buah' => 'Pisang Kepok',
-                'susu' => 'Ultramilk',
-            ]
-        ],
-
-        [
-            'nama' => 'Paket Menu 6',
-            'gambar' => 'images/paket/paket6.png',
-            'menu' => [
-                'pokok' => 'Nasi Putih',
-                'hewani' => 'Telur Dadar',
-                'sayur' => 'Sayur Sop',
-                'nabati' => 'Tahu Goreng',
-                'buah' => 'Pisang Ambon',
-            ]
-        ],
-
-        [
-            'nama' => 'Paket Menu 7',
-            'gambar' => 'images/paket/paket7.png',
-            'menu' => [
-                'pokok' => 'Nasi Liwet',
-                'hewani' => 'Ikan Goreng',
-                'sayur' => 'Sayur Sop',
-                'nabati' => 'Tempe Goreng',
-                'buah' => 'Jeruk Bali',
-                'susu' => 'Susu Segar',
-            ]
-        ],
-
-        [
-            'nama' => 'Paket Menu 8',
-            'gambar' => 'images/paket/paket8.png',
-            'menu' => [
-                'pokok' => 'Nasi Tim Ayam',
-                'sayur' => 'Sayur Kangkung',
-                'nabati' => 'Tahu Goreng',
-                'buah' => 'Pisang Ambon',
-            ]
-        ],
-
-    ];
-
-    // =========================
-    // 🧠 REKOMENDASI AI
-    // =========================
-    $getRekomendasi = function ($score) {
-
-        if ($score <= 1500) {
-            return [
-                'label' => 'Sangat Baik',
-                'target' => 'Kebutuhan Nutrisi Sangat Sesuai'
-            ];
-        }
-
-        if ($score <= 2500) {
-            return [
-                'label' => 'Baik',
-                'target' => 'Kebutuhan Nutrisi Sesuai'
-            ];
-        }
-
-        return [
-            'label' => 'Cukup',
-            'target' => 'Masih Membutuhkan Tambahan Nutrisi'
+            'ibu' => [
+                'kalori' => 2513,
+                'protein' => 78,
+                'karbohidrat' => 393,
+                'lemak' => 62,
+                'serat' => 36,
+            ],
         ];
-    };
 
-    $batasScore = [
-        'anak' => 1800,
-        'remaja' => 2300,
-        'ibu' => 3000,
-    ];
+        $target = $kebutuhan[$userKategori];
 
-    // =========================
-    // 🔥 GENERATE PAKET
-    // =========================
-    return collect($paketMenu)->map(function ($paket) use (
-        $foods,
-        $target,
-        $getRekomendasi,
-        $batasScore,
-        $userKategori
-    ) {
+        // =========================
+        // KELOMPOK MAKANAN
+        // =========================
+        $pokok = [
+            'Nasi Putih',
+            'Nasi Uduk',
+            'Nasi Tim Ayam',
+            'Nasi Liwet',
+            'Nasi Merah',
+            'Spaghetti',
+            'Bihun Goreng',
+        ];
 
-        $menu = [];
+        $hewani = [
+            'Daging Ayam Goreng',
+            'Ikan Bandeng',
+            'Ikan Goreng',
+            'Telur Dadar',
+            'Ayam Goreng Kalasan, Paha',
+            'Chicken Teriyaki',
+            'Beef Teriyaki',
+            'Beef Yakiniku',
+        ];
 
-        foreach ($paket['menu'] as $key => $namaMenu) {
+        $nabati = [
+            'Tempe Goreng',
+            'Tempe Bacem',
+            'Tahu Goreng',
+            'Tahu',
+            'Tahu Bakso',
+        ];
 
-            $found = $foods->first(function ($f) use ($namaMenu) {
+        $sayur = [
+            'Sayur Bayam',
+            'Sayur Kangkung',
+            'Sayur Sop',
+            'Cap Cai / Capcay / Cap Cay, Sayur',
+            'Bayam Kukus',
+            'Tumis Bayam Bersantan',
+        ];
 
-                return strtolower(trim($f['nama'])) == strtolower(trim($namaMenu));
+        $buah = [
+            'Pisang Ambon',
+            'Pisang Kepok',
+            'Jeruk Manis',
+            'Jeruk Bali',
+            'Apel Malang, Segar',
+            'Buah Naga Merah, Segar',
+        ];
+
+        $susu = [
+            'Susu Ultra Milk Rasa Coklat 200 Ml',
+            'Susu Kedelai',
+            'Cimory Fresh Milk Cashew',
+        ];
+
+        // =========================
+        // AMBIL DATA MAKANAN
+        // =========================
+        $ambilMakanan = function ($nama) use ($foods) {
+
+            $found = $foods->first(function ($f) use ($nama) {
+
+                return strtolower(trim($f['nama'])) ==
+                    strtolower(trim($nama));
             });
 
-            // fallback kalau tidak ditemukan
             if (!$found) {
 
-                $found = [
-                    'nama' => $namaMenu,
+                return [
+                    'nama' => $nama,
                     'kalori' => 0,
                     'protein' => 0,
                     'karbohidrat' => 0,
                     'lemak' => 0,
                     'serat' => 0,
-                    'zat_besi' => 0,
-                    'vit_c' => 0,
-                    'kalsium' => 0,
                 ];
             }
 
-            $menu[$key] = $found;
-        }
+            // =========================
+            // AMBIL GAMBAR DARI DB
+            // =========================
+            $gambar = \DB::table('food_images')
+                ->whereRaw('LOWER(nama_makanan) = ?', [strtolower($nama)])
+                ->value('gambar');
+
+            $found['gambar'] = $gambar
+                ? asset('images/Makanan/' . $gambar)
+                : asset('images/default-food.png');
+
+            return $found;
+        };
 
         // =========================
-        // 📊 TOTAL NUTRISI
+        // GENERATE MENU
         // =========================
-        $total = [
-            'kalori' => collect($menu)->sum('kalori'),
-            'protein' => collect($menu)->sum('protein'),
-            'karbohidrat' => collect($menu)->sum('karbohidrat'),
-            'lemak' => collect($menu)->sum('lemak'),
-            'serat' => collect($menu)->sum('serat'),
-            'zat_besi' => collect($menu)->sum('zat_besi'),
-            'vit_c' => collect($menu)->sum('vit_c'),
-            'kalsium' => collect($menu)->sum('kalsium'),
-        ];
+        $hasil = [];
 
-        // =========================
-        // 🧠 AI SCORING
-        // =========================
-        $score =
-            abs($target['kalori'] - $total['kalori']) +
-            abs($target['protein'] - $total['protein']) +
-            abs($target['karbohidrat'] - $total['karbohidrat']) +
-            abs($target['lemak'] - $total['lemak']) +
-            abs($target['serat'] - $total['serat']) +
-            abs($target['zat_besi'] - $total['zat_besi']) +
-            abs($target['vit_c'] - $total['vit_c']) +
-            abs($target['kalsium'] - $total['kalsium']);
+        for ($i = 0; $i < 5; $i++) {
 
-        $rekomendasi = $getRekomendasi($score);
+            $menu = [
 
-        if (
-                $total['kalori'] < ($target['kalori'] * 0.45) ||
-                $total['protein'] < ($target['protein'] * 0.45)
-            ) {
-                return null;
+                'pokok' => $ambilMakanan(
+                    $pokok[array_rand($pokok)]
+                ),
+
+                'hewani' => $ambilMakanan(
+                    $hewani[array_rand($hewani)]
+                ),
+
+                'nabati' => $ambilMakanan(
+                    $nabati[array_rand($nabati)]
+                ),
+
+                'sayur' => $ambilMakanan(
+                    $sayur[array_rand($sayur)]
+                ),
+
+                'buah' => $ambilMakanan(
+                    $buah[array_rand($buah)]
+                ),
+            ];
+
+            // kadang tambah susu
+            if (rand(0, 1)) {
+
+                $menu['susu'] = $ambilMakanan(
+                    $susu[array_rand($susu)]
+                );
             }
 
-        return [
+            // =========================
+            // TOTAL NUTRISI
+            // =========================
+            $total = [
+                'kalori' => collect($menu)->sum('kalori'),
+                'protein' => collect($menu)->sum('protein'),
+                'karbohidrat' => collect($menu)->sum('karbohidrat'),
+                'lemak' => collect($menu)->sum('lemak'),
+                'serat' => collect($menu)->sum('serat'),
+            ];
 
-            'gambar' => url($paket['gambar']),
+            // =========================
+            // SCORING
+            // =========================
+            $score =
+                abs($target['kalori'] - $total['kalori']) +
+                abs($target['protein'] - $total['protein']) +
+                abs($target['karbohidrat'] - $total['karbohidrat']) +
+                abs($target['lemak'] - $total['lemak']) +
+                abs($target['serat'] - $total['serat']);
 
-            'hasil' => [
-                'menu' => $menu,
-                'total' => array_map(fn($v) => round($v,1), $total),
-                'score' => round($score,1)
-            ],
+            // =========================
+            // LABEL REKOMENDASI
+            // =========================
+            if ($score <= 1500) {
 
-            'target' => $target,
+                $label = 'Sangat Baik';
 
-            'rekomendasi' => $rekomendasi,
-        ];
+            } elseif ($score <= 2500) {
 
-    })->filter()->values()->map(function ($item, $index) {
+                $label = 'Baik';
 
-        $hariList = [
-            'Senin',
-            'Selasa',
-            'Rabu',
-            'Kamis',
-            'Jumat'
-        ];
+            } else {
 
-        $item['hari'] = $hariList[$index] ?? 'Hari';
+                $label = 'Cukup';
+            }
 
-        return $item;
-    });
-}
+            $hariList = [
+                'Senin',
+                'Selasa',
+                'Rabu',
+                'Kamis',
+                'Jumat'
+            ];
 
+            $hasil[] = [
+
+                'hari' => $hariList[$i],
+
+                'hasil' => [
+                    'menu' => $menu,
+
+                    'total' => array_map(function ($v) {
+                        return round($v, 1);
+                    }, $total),
+
+                    'score' => round($score, 1),
+                ],
+
+                'target' => $target,
+
+                'rekomendasi' => [
+                    'label' => $label
+                ],
+            ];
+        }
+
+        return collect($hasil);
+    }
         // =========================
         // 👶 STUNTING (1 hari)
         // =========================

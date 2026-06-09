@@ -79,6 +79,62 @@
   display:block;
 }
 
+.ompreng-wrapper{
+  position:relative;
+  width:320px;
+  margin:auto;
+}
+
+.ompreng-bg{
+  width:100%;
+  display:block;
+}
+
+.ompreng-item{
+  position:absolute;
+  object-fit:contain;
+  width:auto;
+  height:auto;
+  max-width:100%;
+  max-height:100%;
+}
+
+.nasi{
+  height:99px;
+  left:28px;
+  bottom:58px;
+}
+
+.lauk{
+  height:90px;
+  right:92px;
+  bottom:70px;
+}
+
+.nabati{
+  height:88px;
+  right:28px;
+  bottom:70px;
+}
+
+.sayur{
+  height:88px;
+  top:70px;
+  left:115px;
+}
+
+.buah{
+  height:75px;
+  top:70px;
+  right:20px;
+}
+
+.susu{
+  height:84px;
+  top:70px;
+  left:18px;
+}
+
 .badge-ai {
   display: inline-block;
   background: #dbeafe;
@@ -186,10 +242,10 @@ async function getRekomendasi() {
 
     let data = result.data;
 
-    // =========================================
-    // 🟢 MBG (OMPRENG 1 MINGGU)
-    // =========================================
-      if (result.type === "mbg") {
+// =========================================
+// 🟢 MBG (OMPRENG 1 MINGGU)
+// =========================================
+if (result.type === "mbg") {
 
   let data = Array.isArray(result.data)
     ? result.data
@@ -203,37 +259,97 @@ async function getRekomendasi() {
     let rekomendasi = item?.rekomendasi || {};
 
     return `
+
       <div class="card menu-card">
 
-        <img src="${item.gambar}" class="menu-image">
+        <!-- OMPRENG -->
+        <div class="ompreng-wrapper">
 
+          <!-- Background Ompreng -->
+          <img
+            src="/images/Makanan/Omprengmbg.png"
+            class="ompreng-bg"
+          >
+
+          <!-- NASI -->
+          ${menu?.pokok?.gambar ? `
+            <img
+              src="${menu.pokok.gambar}"
+              class="ompreng-item nasi"
+            >
+          ` : ''}
+
+          <!-- HEWANI -->
+          ${menu?.hewani?.gambar ? `
+            <img
+              src="${menu.hewani.gambar}"
+              class="ompreng-item lauk"
+            >
+          ` : ''}
+
+          <!-- NABATI -->
+          ${menu?.nabati?.gambar ? `
+            <img
+              src="${menu.nabati.gambar}"
+              class="ompreng-item nabati"
+            >
+          ` : ''}
+
+          <!-- SAYUR -->
+          ${menu?.sayur?.gambar ? `
+            <img
+              src="${menu.sayur.gambar}"
+              class="ompreng-item sayur"
+            >
+          ` : ''}
+
+          <!-- BUAH -->
+          ${menu?.buah?.gambar ? `
+            <img
+              src="${menu.buah.gambar}"
+              class="ompreng-item buah"
+            >
+          ` : ''}
+
+          ${menu?.susu ? `
+            <img
+              src="${menu.susu.gambar}"
+              class="ompreng-item susu"
+            >
+          ` : ''}
+
+        </div>
+
+        <!-- TITLE -->
         <div class="menu-title">
           🍱 ${item.hari}
         </div>
 
-        <div style="margin-top:14px">
+        <!-- LIST MENU -->
+        <ul style="
+          margin-top:14px;
+          padding-left:18px;
+          line-height:1.9;
+          font-size:14px;
+        ">
 
-          <b>Isi Menu:</b>
+          <li>🍚 ${menu?.pokok?.nama || '-'}</li>
 
-          <ul style="margin-top:8px">
+          <li>🍗 ${menu?.hewani?.nama || '-'}</li>
 
-            <li>🍚 ${menu?.pokok?.nama || '-'}</li>
+          <li>🥜 ${menu?.nabati?.nama || '-'}</li>
 
-            <li>🍗 ${menu?.hewani?.nama || '-'}</li>
+          <li>🥬 ${menu?.sayur?.nama || '-'}</li>
 
-            <li>🥜 ${menu?.nabati?.nama || '-'}</li>
+          <li>🍎 ${menu?.buah?.nama || '-'}</li>
 
-            <li>🥬 ${menu?.sayur?.nama || '-'}</li>
-
-            <li>🍎 ${menu?.buah?.nama || '-'}</li>
-           
-            ${menu?.susu ? `
+          ${menu?.susu ? `
             <li>🥛 ${menu?.susu?.nama}</li>
-            ` : ''}
+          ` : ''}
 
-          </ul>
-        </div>
+        </ul>
 
+        <!-- SCORE -->
         <div class="score-box">
 
           <b>${rekomendasi?.label || 'AI Scoring'}</b><br>
@@ -249,11 +365,16 @@ async function getRekomendasi() {
 
         </div>
 
+        <!-- TOTAL NUTRISI -->
         <div style="font-size:13px; margin-top:12px">
 
           <b>Total Nutrisi:</b>
 
-          <table style="width:100%; margin-top:8px; font-size:12px">
+          <table style="
+            width:100%;
+            margin-top:8px;
+            font-size:12px
+          ">
 
             <tr>
               <td>Kalori</td>
@@ -290,6 +411,7 @@ async function getRekomendasi() {
         </div>
 
       </div>
+
     `;
 
   }).join("");
