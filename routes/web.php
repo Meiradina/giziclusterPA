@@ -6,6 +6,8 @@ use App\Http\Controllers\ClusteringController;
 use App\Http\Controllers\GrafikController;
 use App\Http\Controllers\InsightController;
 use App\Http\Controllers\RekomendasiController;
+use App\Http\Controllers\AIRecipeController;
+
 
 Route::get('/', [DashboardController::class, 'landing'])->name('home');
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -17,6 +19,9 @@ Route::get('/insight', [InsightController::class, 'index'])->name('insight');
 Route::get('/rekomendasi', function () {
     return view('rekomendasi');
 })->name('rekomendasi');
-
 Route::get('/rekomendasi/data', [RekomendasiController::class, 'rekomendasi'])
     ->name('rekomendasi.data');
+Route::get('/ai-recipe', [AIRecipeController::class, 'index'])
+    ->name('ai.index');
+Route::post('/ai-recipe', [AIRecipeController::class, 'generate'])
+    ->name('ai.generate');
